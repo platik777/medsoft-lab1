@@ -17,7 +17,7 @@ export default function HospitalChiefUI() {
     // Функция для загрузки текущего списка пациентов
     const loadCurrentPatients = async () => {
         try {
-            const response = await fetch('http://localhost:8081/api/patients');
+            const response = await fetch('https://localhost:8081/api/patients');
             if (response.ok) {
                 const data = await response.json();
                 setPatients(data);
@@ -30,11 +30,10 @@ export default function HospitalChiefUI() {
     };
 
     useEffect(() => {
-        // Загружаем текущий список пациентов при старте
         loadCurrentPatients();
 
         const stompClient = new Client({
-            brokerURL: 'ws://localhost:8081/ws', // Прямой WebSocket URL
+            brokerURL: 'wss://localhost:8081/ws',
 
             debug: (str) => {
                 console.log('STOMP:', str);
@@ -43,18 +42,20 @@ export default function HospitalChiefUI() {
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
+
+            webSocketFactory: () => {
+                return new WebSocket('wss://localhost:8081/ws');
+            }
         });
 
         let subscription: StompSubscription | undefined;
 
         stompClient.onConnect = () => {
-            console.log('WebSocket подключен');
+            console.log('WebSocket подключен (защищенное соединение)');
             setConnected(true);
 
-            // Загружаем актуальный список после подключения
             loadCurrentPatients();
 
-            // Подписываемся на топик с пациентами
             subscription = stompClient.subscribe('/topic/patients', (message) => {
                 try {
                     const updatedPatients = JSON.parse(message.body);

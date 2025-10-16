@@ -7,7 +7,7 @@ interface Patient {
     dateOfBirth: string;
 }
 
-const API_URL = 'http://localhost:8080/api/patients';
+const API_URL = 'https://localhost:8080/api/patients';
 
 export default function ReceptionUI() {
     const [patients, setPatients] = useState<Patient[]>([]);
