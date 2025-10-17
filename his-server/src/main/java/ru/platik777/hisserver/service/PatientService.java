@@ -31,14 +31,12 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        // Отправляем обновление через WebSocket
         broadcastPatients();
     }
 
     public void removePatient(Long id) {
         patientRepository.deleteById(id);
 
-        // Отправляем обновление через WebSocket
         broadcastPatients();
     }
 
@@ -49,7 +47,6 @@ public class PatientService {
     private void broadcastPatients() {
         List<Patient> patients = getAllPatients();
         messagingTemplate.convertAndSend("/topic/patients", patients);
-        log.info("Отправлено обновление списка пациентов через WebSocket ({} пациентов)",
-                patients.size());
+        log.info("Отправлено обновление списка пациентов через WebSocket ({} пациентов)", patients.size());
     }
 }

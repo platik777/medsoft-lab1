@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import ru.platik777.hisserver.service.PatientService;
 
-import java.io.IOException;
 import java.util.Map;
 
 @SpringBootApplication
@@ -36,7 +35,6 @@ public class HisServerApplication {
 
             HL7Service server = context.newServer(port, false);
 
-            // Регистрируем обработчик для всех ADT сообщений
             server.registerApplication("ADT", "*", new ReceivingApplication<>() {
                 @Override
                 public Message processMessage(Message message, Map<String, Object> metadata)
@@ -49,7 +47,6 @@ public class HisServerApplication {
                         String messageType = message.getName();
 
                         if (messageType.equals("ADT_A01")) {
-                            // Логируем полученное сообщение (требование №7)
                             log.info("=== Получено HL7 сообщение ADT^A01 ===");
                             log.info("Исходный формат:\n{}", encodedMessage);
                             log.info("======================================");
@@ -83,7 +80,6 @@ public class HisServerApplication {
                             String patientId = adtMessage.getPID().getPatientIdentifierList(0)
                                     .getIDNumber().getValue();
 
-                            // Удаляем пациента и отправляем уведомление через WebSocket
                             patientService.removePatient(Long.parseLong(patientId));
 
                             log.info("Пациент удалён из HIS (ID: {})", patientId);
