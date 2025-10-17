@@ -35,7 +35,6 @@ public class PatientController {
 
             patient = patientRepository.save(patient);
 
-            // Отправляем HL7 сообщение
             hl7Service.sendPatientAdmission(patient);
 
             log.info("Пациент добавлен: {} {}", patient.getFirstName(), patient.getLastName());
@@ -53,7 +52,6 @@ public class PatientController {
             Patient patient = patientRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Пациент не найден"));
 
-            // Отправляем HL7 сообщение о выписке
             hl7Service.sendPatientDischarge(patient);
 
             patientRepository.deleteById(id);

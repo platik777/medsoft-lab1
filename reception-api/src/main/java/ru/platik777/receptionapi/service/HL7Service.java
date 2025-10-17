@@ -38,20 +38,15 @@ public class HL7Service {
         this.parser = context.getPipeParser();
     }
 
-    /**
-     * Создаёт HL7 сообщение ADT^A01 (Patient Admission)
-     */
     public void sendPatientAdmission(Patient patient) throws HL7Exception, IOException, LLPException {
         ADT_A01 message = new ADT_A01();
 
-        // MSH Segment
         message.initQuickstart("ADT", "A01", "P");
         message.getMSH().getSendingApplication().getNamespaceID().setValue("RECEPTION");
         message.getMSH().getSendingFacility().getNamespaceID().setValue("HOSPITAL");
         message.getMSH().getReceivingApplication().getNamespaceID().setValue("HIS");
         message.getMSH().getReceivingFacility().getNamespaceID().setValue("HOSPITAL");
 
-        // PID Segment
         message.getPID().getPatientIdentifierList(0).getIDNumber().setValue(patient.getId().toString());
         message.getPID().getPatientName(0).getFamilyName().getSurname().setValue(patient.getLastName());
         message.getPID().getPatientName(0).getGivenName().setValue(patient.getFirstName());
@@ -59,7 +54,6 @@ public class HL7Service {
                 patient.getDateOfBirth().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
         );
 
-        // EVN Segment
         message.getEVN().getRecordedDateTime().getTime().setValue(
                 java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
         );
@@ -67,20 +61,15 @@ public class HL7Service {
         sendMessage(message);
     }
 
-    /**
-     * Создаёт HL7 сообщение ADT^A03 (Patient Discharge)
-     */
     public void sendPatientDischarge(Patient patient) throws HL7Exception, IOException, LLPException {
         ADT_A03 message = new ADT_A03();
 
-        // MSH Segment
         message.initQuickstart("ADT", "A03", "P");
         message.getMSH().getSendingApplication().getNamespaceID().setValue("RECEPTION");
         message.getMSH().getSendingFacility().getNamespaceID().setValue("HOSPITAL");
         message.getMSH().getReceivingApplication().getNamespaceID().setValue("HIS");
         message.getMSH().getReceivingFacility().getNamespaceID().setValue("HOSPITAL");
 
-        // PID Segment
         message.getPID().getPatientIdentifierList(0).getIDNumber().setValue(patient.getId().toString());
         message.getPID().getPatientName(0).getFamilyName().getSurname().setValue(patient.getLastName());
         message.getPID().getPatientName(0).getGivenName().setValue(patient.getFirstName());
@@ -88,7 +77,6 @@ public class HL7Service {
                 patient.getDateOfBirth().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
         );
 
-        // EVN Segment
         message.getEVN().getRecordedDateTime().getTime().setValue(
                 java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
         );
@@ -96,13 +84,9 @@ public class HL7Service {
         sendMessage(message);
     }
 
-    /**
-     * Отправляет HL7 сообщение на сервер HIS
-     */
     private void sendMessage(Message message) throws HL7Exception, IOException, LLPException {
         String encodedMessage = parser.encode(message);
 
-        // Логируем исходное HL7 сообщение (требование №7)
         log.info("=== Отправка HL7 сообщения ===");
         log.info("Исходный формат HL7:\n{}", encodedMessage);
         log.info("==============================");

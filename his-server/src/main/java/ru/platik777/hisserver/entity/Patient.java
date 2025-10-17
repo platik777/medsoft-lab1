@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class Patient {
 
     @Id
-    private Long id; // ID приходит из Reception.API
+    private Long id;
 
     @Column(nullable = false)
     private String firstName;

@@ -14,7 +14,6 @@ export default function HospitalChiefUI() {
     const [connected, setConnected] = useState(false);
     const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-    // Функция для загрузки текущего списка пациентов
     const loadCurrentPatients = async () => {
         try {
             const response = await fetch('https://localhost:8081/api/patients');
@@ -40,8 +39,8 @@ export default function HospitalChiefUI() {
             },
 
             reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
+            heartbeatIncoming: 3000,
+            heartbeatOutgoing: 3000,
 
             webSocketFactory: () => {
                 return new WebSocket('wss://localhost:8081/ws');
@@ -51,7 +50,7 @@ export default function HospitalChiefUI() {
         let subscription: StompSubscription | undefined;
 
         stompClient.onConnect = () => {
-            console.log('WebSocket подключен (защищенное соединение)');
+            console.log('WebSocket подключен');
             setConnected(true);
 
             loadCurrentPatients();
@@ -84,10 +83,8 @@ export default function HospitalChiefUI() {
             setConnected(false);
         };
 
-        // Активируем подключение
         stompClient.activate();
 
-        // Cleanup при размонтировании
         return () => {
             if (subscription) {
                 subscription.unsubscribe();
@@ -95,10 +92,6 @@ export default function HospitalChiefUI() {
             stompClient.deactivate();
         };
     }, []);
-
-    const formatDateTime = (date: Date) => {
-        return date.toLocaleString('ru-RU');
-    };
 
     const calculateAge = (dateOfBirth: string) => {
         const today = new Date();

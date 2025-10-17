@@ -19,20 +19,17 @@ export default function ReceptionUI() {
     const [user, setUser] = useState<User | null>(null);
     const [patients, setPatients] = useState<Patient[]>([]);
 
-    // Login form state
     const [loginMode, setLoginMode] = useState(true);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
 
-    // Patient form state
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // Проверяем сохраненный токен
         const savedToken = localStorage.getItem('token');
         const savedUsername = localStorage.getItem('username');
         const savedFullName = localStorage.getItem('fullName');
@@ -172,7 +169,6 @@ export default function ReceptionUI() {
         }
     };
 
-    // Форма входа/регистрации
     if (!user) {
         return (
             <div style={{
@@ -277,7 +273,6 @@ export default function ReceptionUI() {
         );
     }
 
-    // Основной интерфейс (остается таким же)
     return (
         <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
             <div style={{

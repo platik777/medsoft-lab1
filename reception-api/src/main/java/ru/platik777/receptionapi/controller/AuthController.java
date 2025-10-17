@@ -23,8 +23,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        User user = userRepository.findByUsername(request.username())
-                .orElse(null);
+        User user = userRepository.findByUsername(request.username()).orElse(null);
 
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
             return ResponseEntity.status(401).body(new ErrorResponse("Неверное имя пользователя или пароль"));
