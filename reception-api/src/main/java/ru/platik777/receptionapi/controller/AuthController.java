@@ -23,71 +23,44 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.username())
                 .orElse(null);
 
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
             return ResponseEntity.status(401).body(new ErrorResponse("Неверное имя пользователя или пароль"));
         }
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        String token = jwtUtil.generateToken(user.getUsername());
 
         log.info("Пользователь {} успешно вошел в систему", user.getUsername());
 
-        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), user.getFullName(), user.getRole()));
+        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), user.getFullName()));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(request.username()).isPresent()) {
             return ResponseEntity.badRequest().body(new ErrorResponse("Пользователь уже существует"));
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFullName(request.getFullName());
-        user.setRole("ROLE_RECEPTIONIST");
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setFullName(request.fullName());
 
         userRepository.save(user);
 
         log.info("Зарегистрирован новый пользователь: {}", user.getUsername());
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), user.getFullName(), user.getRole()));
+        String token = jwtUtil.generateToken(user.getUsername());
+        return ResponseEntity.ok(new LoginResponse(token, user.getUsername(), user.getFullName()));
     }
 
-    @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
-        try {
-            String token = authHeader.substring(7);
-            String username = jwtUtil.extractUsername(token);
+    public record LoginRequest(String username, String password) {}
 
-            if (jwtUtil.isTokenValid(token, username)) {
-                return ResponseEntity.ok(new MessageResponse("Token is valid"));
-            }
-        } catch (Exception e) {
-            log.error("Token validation failed", e);
-        }
-        return ResponseEntity.status(401).body(new ErrorResponse("Invalid token"));
-    }
+    public record RegisterRequest (String username, String password, String fullName) {}
 
-    @Data
-    public static class LoginRequest {
-        private String username;
-        private String password;
-    }
-
-    @Data
-    public static class RegisterRequest {
-        private String username;
-        private String password;
-        private String fullName;
-    }
-
-    public record LoginResponse(String token, String username, String fullName, String role) {}
+    public record LoginResponse(String token, String username, String fullName) {}
 
     public record ErrorResponse(String error) {}
-
-    public record MessageResponse(String message) {}
 }
